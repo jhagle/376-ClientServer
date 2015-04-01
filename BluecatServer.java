@@ -6,9 +6,9 @@ import java.net.Socket;
 
 public class BluecatServer {
 
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		ServerSocket listener = new ServerSocket(9090);
+	
+	public void listen(String port) throws IOException{
+		ServerSocket listener = new ServerSocket(Integer.parseInt(port));
 		System.out.println("Now listening to port 9090...");
 		try {
             while (true) {
@@ -25,6 +25,11 @@ public class BluecatServer {
         finally {
             listener.close();
         }
+	}
+	
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+
 	}
 
 }
