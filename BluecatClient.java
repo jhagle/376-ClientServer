@@ -9,13 +9,23 @@ import java.net.Socket;
 
 public class BluecatClient {
 
-	public static void main(String[] args) throws IOException {
+	
+	public void send(int port){
+		try{
 		InetAddress serverAddress = InetAddress.getLoopbackAddress();
-	        Socket s = new Socket(serverAddress, 9090);
-	        BufferedReader input =
-	            new BufferedReader(new InputStreamReader(s.getInputStream()));
-	        String answer = input.readLine();
-	        System.out.println(answer);
-	        System.exit(0);
+        Socket s = new Socket(serverAddress, port);
+        BufferedReader input =
+            new BufferedReader(new InputStreamReader(s.getInputStream()));
+        String answer = input.readLine();
+        System.out.println(answer);
+        System.exit(0);
+		}catch(Exception e){
+		System.out.println(e.getMessage());
+		return;
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		
     }
 }

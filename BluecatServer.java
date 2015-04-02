@@ -7,9 +7,9 @@ import java.net.Socket;
 public class BluecatServer {
 
 	
-	public void listen(String port) throws IOException{
-		ServerSocket listener = new ServerSocket(Integer.parseInt(port));
-		System.out.println("Now listening to port 9090...");
+	public void listen(int port) throws IOException{
+		ServerSocket listener = new ServerSocket(port);
+		System.out.println("Now listening to port "+ port + "...");
 		try {
             while (true) {
                 Socket socket = listener.accept();
