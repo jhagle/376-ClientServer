@@ -3,6 +3,7 @@
 
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -23,6 +24,8 @@ public class Bluecat {
         	try{
         		//Ensure port number is an int
         		int portNum = Integer.parseInt(port);
+               	BluecatServer server = new BluecatServer(portNum);
+               	server.listen();
                	//-f reads entire file and sends it to the client
                 if(Arrays.asList(args).contains("-f")){
                 	if(Arrays.asList(args).contains("-r")){
@@ -50,21 +53,24 @@ public class Bluecat {
                 }
                	//If no further parameters than reads from standard input
                 else{
-                	System.out.println("This is where I read from standard input");
+                	
                 }
                	//Instantiate server
-               	BluecatServer server = new BluecatServer();
-               	server.listen(portNum);
+               	server.close();
         	} catch (NumberFormatException e) {
         		System.out.println("You must enter a port number after '-l'");
         	}
         	
-            return;
+            
         }
         
         
         //If no '-l' then it acts as client
         else{
+        	String port = args[(args.length)-1];
+	        int portNum = Integer.parseInt(port);
+	        try{
+
         	System.out.println("I am a CLIENT");
 	        
 	        if(Arrays.asList(args).contains("-f")){
@@ -73,36 +79,81 @@ public class Bluecat {
 	        		return;
 	        	}
 	           	System.out.println("This is where I read an entire file and send it to the SERVER");
-	           	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-f")) + 1]);
+	           	String filename = args[(Arrays.asList(args).indexOf("-f")) + 1];
+	           	String file = readFile(filename);
+	           	BluecatClient client = new BluecatClient(portNum);
+				client.communicate(file);
+				client.close();
+				return;
 	        }
-	        
-	        if(Arrays.asList(args).contains("-r")){
+	        if(Arrays.asList(args).contains("-o")){
+	           	System.out.println("This is where I create or overwrite a file");
+	           	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-o")) + 1]);
+	        } else if(Arrays.asList(args).contains("-r")){
 	        	if(Arrays.asList(args).contains("-f")){
 	        		System.out.println("You may only select -f or -r, not both. Now Closing");
 	        		return;
 	        	}
 	          	System.out.println("This is where I read a single line at a time and send it to the SERVER");
-	          	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-r")) + 1]);
-	        }
-	
-	        if(Arrays.asList(args).contains("-o")){
-	           	System.out.println("This is where I create or overwrite a file");
-	           	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-o")) + 1]);
-	        }
-	        
-	        else{
+	           	String filename = args[(Arrays.asList(args).indexOf("-r")) + 1];
+	           	String file = readLine(filename);
+	           	BluecatClient client = new BluecatClient(portNum);
+				client.communicate(file);
+				client.close();
+				return;
+	        } else{
 	           	System.out.println("This is where I read from standard input");
+	           	BufferedReader reader= new BufferedReader( 
+						 new InputStreamReader(System.in) );
+				System.out.print( "Enter message: " );
+				String message= reader.readLine();
+				BluecatClient client = new BluecatClient(portNum);
+				client.communicate(message);
+				client.close();
+				
 	        }
-        
-	        String port = args[(args.length)-1];
-	        try{
-        		int portNum = Integer.parseInt(port);
-        		BluecatClient client = new BluecatClient();
-               	client.send(portNum);
 	        }
 	        catch (NumberFormatException e) {
         		System.out.println("You must enter a port number as the last command line parameter");
+        		
         	}
+
         }
 	}
+
+
+
+static String readFile(String fileName) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader(fileName));
+    try {
+        StringBuilder sb = new StringBuilder();
+        String line = br.readLine();
+
+        while (line != null) {
+            sb.append(line);
+            line = br.readLine();
+        }
+        return sb.toString();
+    } finally {
+        br.close();
+    }
 }
+
+static String readLine(String fileName) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader(fileName));
+    try {
+        StringBuilder sb = new StringBuilder();
+        String line = br.readLine();
+
+        while (line != null) {
+            sb.append(line);
+            sb.append('\n');
+            line = br.readLine();
+        }
+        return sb.toString();
+    } finally {
+        br.close();
+    }
+}
+}
+
