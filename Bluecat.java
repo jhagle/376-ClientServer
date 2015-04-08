@@ -3,10 +3,13 @@
 
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,6 +17,9 @@ import java.util.Arrays;
 
 
 public class Bluecat {
+	
+	String writeFile;
+	
 
 	public static void main(String[] args) throws IOException {
 		//Act as server with '-l'
@@ -68,6 +74,7 @@ public class Bluecat {
         //If no '-l' then it acts as client
         else{
         	String port = args[(args.length)-1];
+        	String contents;
 	        int portNum = Integer.parseInt(port);
 	        try{
 
@@ -81,15 +88,14 @@ public class Bluecat {
 	           	System.out.println("This is where I read an entire file and send it to the SERVER");
 	           	String filename = args[(Arrays.asList(args).indexOf("-f")) + 1];
 	           	String file = readFile(filename);
+	           	contents = file;
 	           	BluecatClient client = new BluecatClient(portNum);
 				client.communicate(file);
 				client.close();
 				return;
 	        }
-	        if(Arrays.asList(args).contains("-o")){
-	           	System.out.println("This is where I create or overwrite a file");
-	           	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-o")) + 1]);
-	        } else if(Arrays.asList(args).contains("-r")){
+
+	        if(Arrays.asList(args).contains("-r")){
 	        	if(Arrays.asList(args).contains("-f")){
 	        		System.out.println("You may only select -f or -r, not both. Now Closing");
 	        		return;
@@ -97,6 +103,7 @@ public class Bluecat {
 	          	System.out.println("This is where I read a single line at a time and send it to the SERVER");
 	           	String filename = args[(Arrays.asList(args).indexOf("-r")) + 1];
 	           	String file = readLine(filename);
+	           	contents = file;
 	           	BluecatClient client = new BluecatClient(portNum);
 				client.communicate(file);
 				client.close();
@@ -107,11 +114,17 @@ public class Bluecat {
 						 new InputStreamReader(System.in) );
 				System.out.print( "Enter message: " );
 				String message= reader.readLine();
+				contents = message;
 				BluecatClient client = new BluecatClient(portNum);
 				client.communicate(message);
 				client.close();
 				
 	        }
+	        if(Arrays.asList(args).contains("-o")){
+	           	System.out.println("This is where I create or overwrite a file");
+	           	write((args[(Arrays.asList(args).indexOf("-o")) + 1]), contents);
+	           	System.out.println("File Name: " + args[(Arrays.asList(args).indexOf("-o")) + 1]);
+	        } 
 	        }
 	        catch (NumberFormatException e) {
         		System.out.println("You must enter a port number as the last command line parameter");
@@ -155,5 +168,12 @@ static String readLine(String fileName) throws IOException {
         br.close();
     }
 }
+
+static void write(String writeFile, String content) throws IOException {
+	PrintWriter out = new PrintWriter(writeFile);
+	out.println(content);
+	out.close();
+}
+
 }
 
